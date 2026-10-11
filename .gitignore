@@ -1,0 +1,14 @@
+# Derlenen ikili dosyalar
+akilli_kasa
+rapor_deneyi
+test_float
+
+# Nesne dosyalari
+*.o
+*.out
+
+# Gecici ve IDE dosyalari
+.vscode/
+.idea/
+*.swp
+*.save
