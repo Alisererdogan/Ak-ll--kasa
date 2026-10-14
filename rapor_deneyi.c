@@ -1,22 +1,15 @@
-/**
- * @file rapor_deneyi.c
- * @brief Rapor Sorusu Icin IEEE 754 Float Hassasiyet Deneyi ve Bit Analizi
- * @author Ali (Ogrenci Projesi)
- * @date 2026-10-11
+/*
+ * rapor_deneyi.c - IEEE 754 Float Hassasiyet Deneyi
  *
- * Bu program:
- * 18.70 TL urun tutari ve 20.00 TL odenen para ornegini
- * IEEE 754 tek duyarlikli (single-precision 32-bit float) standardinda
- * bit ve hex duzeyinde analiz eder, 1 kurusluk kaybin matematiksel
- * nedenini kanitlar.
+ * 18.70 TL urun tutari ve 20.00 TL odenen para orneginde ortaya cikan
+ * 1 kurusluk kaybin nedenini bit duzeyinde inceler.
  */
 
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 #include <math.h>
 
-/* Float degerin bellek yapisini bit duzeyinde incelemek icin union */
+// 32-bit float yapisini (IEEE 754) bit duzeyinde gormek icin union
 typedef union {
     float f;
     uint32_t u;
@@ -27,13 +20,13 @@ typedef union {
     } bits;
 } FloatBitAnaliz;
 
-void float_yazdir(const char *etiket, float val) {
+void float_yazdir(const char *etiket, float sayi) {
     FloatBitAnaliz fa;
-    fa.f = val;
+    fa.f = sayi;
 
-    printf("%-20s: %16.10f | Hex: 0x%08X | Isaret: %u | Us: %3u | Mantissa: 0x%06X\n",
+    printf("%-20s: %14.8f | Hex: 0x%08X | Isaret:%u  Us:%3u  Mantissa:0x%06X\n",
            etiket,
-           (double)val,
+           (double)sayi,
            fa.u,
            fa.bits.sign,
            fa.bits.exponent,
@@ -41,51 +34,44 @@ void float_yazdir(const char *etiket, float val) {
 }
 
 int main(void) {
-    float urun_tutari = 18.70f;
-    float odenen_para = 20.00f;
-    float fark = odenen_para - urun_tutari;
+    float urun = 18.70f;
+    float odenen = 20.00f;
+    float fark = odenen - urun;
     float fark_x100 = fark * 100.0f;
 
     int hatali_kurus = (int)(fark * 100.0f);
     int dogru_kurus = (int)roundf(fark * 100.0f);
 
-    printf("========================================================================================\n");
-    printf("                  RAPOR SORUSU: IEEE 754 FLOAT HASSASIYET ANALIZI                       \n");
-    printf("========================================================================================\n\n");
+    printf("=== IEEE 754 Float Hassasiyet Deneyi ===\n\n");
 
-    printf("1. DEGISKENLERIN BELLEKTEKI (IEEE 754) BIT DUZEYINDEKI TEMSILI:\n");
-    printf("----------------------------------------------------------------------------------------\n");
-    float_yazdir("Urun Tutari (18.70f)", urun_tutari);
-    float_yazdir("Odenen Para (20.00f)", odenen_para);
+    printf("1. Bellekteki Temsil (IEEE 754):\n");
+    printf("--------------------------------------------------------------------------------\n");
+    float_yazdir("Urun (18.70f)", urun);
+    float_yazdir("Odenen (20.00f)", odenen);
     float_yazdir("Fark (20 - 18.70)", fark);
     float_yazdir("Fark x 100.0f", fark_x100);
-    printf("----------------------------------------------------------------------------------------\n\n");
+    printf("--------------------------------------------------------------------------------\n\n");
 
-    printf("2. MATEMATIKSEL DONUSUM KARSILASTIRMASI:\n");
-    printf("----------------------------------------------------------------------------------------\n");
-    printf("  Teorik (Gercek) Para Ustu : 20.00 - 18.70 = 1.30 TL = 130 Kurus\n");
-    printf("  Bellekte Saklanan Fark    : %.15f TL\n", (double)fark);
-    printf("  Bellekte Fark x 100       : %.15f\n", (double)fark_x100);
-    printf("  (int)(fark * 100) [HATALI]: %d Kurus  (Truncation: ondalik kisim atildi, 1 kr KAYIP!)\n",
+    printf("2. Donusum Karsilastirmasi:\n");
+    printf("--------------------------------------------------------------------------------\n");
+    printf("  Matematiksel Gercek Deger : 20.00 - 18.70 = 1.30 TL (130 Kurus)\n");
+    printf("  Bellekte Saklanan Fark    : %.12f TL\n", (double)fark);
+    printf("  Fark x 100.0f             : %.12f\n", (double)fark_x100);
+    printf("  (int)(fark * 100) [Hatali]: %d Kurus  -> Ondalik kisim kesildi (1 kurus kayip!)\n",
            hatali_kurus);
-    printf("  roundf(fark * 100)[DOGRU] : %d Kurus  (Matematiksel en yakin tamsayiya yuvarlandi)\n",
+    printf("  roundf(fark*100)  [Dogru] : %d Kurus  -> En yakin tam sayiya yuvarlandi\n",
            dogru_kurus);
-    printf("----------------------------------------------------------------------------------------\n\n");
+    printf("--------------------------------------------------------------------------------\n\n");
 
-    printf("3. KUPUR ETKISI KARSILASTIRMASI (129 Kurus vs 130 Kurus):\n");
-    printf("----------------------------------------------------------------------------------------\n");
-    printf("  [HATALI] 129 Kurus icin kupurler:\n");
-    printf("    -> 1 TL (100 kr) : 1 adet\n");
-    printf("    -> 25 Kurus      : 1 adet\n");
-    printf("    -> 1 Kurus       : 4 adet\n");
-    printf("    TOPLAM: 6 adet kupur verilir ve musteri 1 kurus zarara ugratilir!\n\n");
-
-    printf("  [DOGRU]  130 Kurus icin kupurler:\n");
-    printf("    -> 1 TL (100 kr) : 1 adet\n");
-    printf("    -> 25 Kurus      : 1 adet\n");
-    printf("    -> 5 Kurus       : 1 adet\n");
-    printf("    TOPLAM: 3 adet kupur verilir, para ustu tam ve en az sayida kupurle odenir!\n");
-    printf("========================================================================================\n");
+    printf("3. Kupur Dagilimi Uzerindeki Etkisi:\n");
+    printf("--------------------------------------------------------------------------------\n");
+    printf("  [Hatali] 129 Kurus:\n");
+    printf("    -> 1 TL (1 adet), 25 Kr (1 adet), 1 Kr (4 adet) = Toplam 6 kupur\n");
+    printf("    (Musteri 1 kurus eksik alir ve gereksiz fazla bozukluk verilir)\n\n");
+    printf("  [Dogru]  130 Kurus:\n");
+    printf("    -> 1 TL (1 adet), 25 Kr (1 adet), 5 Kr (1 adet) = Toplam 3 kupur\n");
+    printf("    (Para ustu eksiksizdir ve en az sayida kupurle odenir)\n");
+    printf("--------------------------------------------------------------------------------\n");
 
     return 0;
 }

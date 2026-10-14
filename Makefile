@@ -1,10 +1,7 @@
-# Akilli Kasa Projesi Makefile
-# Derleyici ve bayrak tanimlari
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c99 -O2
+CFLAGS = -Wall -Wextra -std=c99
 LDFLAGS = -lm
 
-# Hedef calistirilabilir dosyalar
 TARGETS = akilli_kasa rapor_deneyi
 
 .PHONY: all clean run test rapor
@@ -24,8 +21,7 @@ rapor: rapor_deneyi
 	./rapor_deneyi
 
 test: all
-	@chmod +x test_suite.sh
-	@./test_suite.sh
+	@bash test_suite.sh
 
 clean:
 	rm -f $(TARGETS) *.o
